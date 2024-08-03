@@ -6,7 +6,12 @@ import "./App.css";
 const App = () => {
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const increaseCurrentPage = () => {
+    setCurrentPage(currentPage + 1);
+    console.log(currentPage);
+  };
+  setTimeout(increaseCurrentPage, 1000);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,10 +69,14 @@ const App = () => {
     "Packet Length Std",
     "Max Packet Length",
   ];
-
+  const paginatedData = chartData.slice(
+    (currentPage - 1) * 60,
+    currentPage * 60
+  );
   return (
     <div className="App">
       <h1>Network Traffic Visualization</h1>
+      <button onClick={increaseCurrentPage}>Click here to change page</button>
       {isLoading ? (
         <p>Loading data...</p>
       ) : chartData.length > 0 ? (
@@ -75,7 +84,7 @@ const App = () => {
           {metrics.map((metric) => (
             <div key={metric} className="chart-item">
               <TrafficChart
-                data={chartData.slice(100, 200)}
+                data={paginatedData}
                 metric={metric}
                 label={metric}
               />
