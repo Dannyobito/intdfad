@@ -25,14 +25,16 @@ const TrafficChart = ({ data, metric, label }) => {
   };
 
   const options = {
+    responsive: true,
     scales: {
       x: {
         type: "time",
         time: {
-          unit: "minute",
-          tooltipFormat: "MMM dd, yyyy HH:mm",
+          unit: "second",
+          tooltipFormat: "MMM dd, yyyy HH:mm:ss",
           displayFormats: {
             minute: "MMM dd, yyyy HH:mm",
+            second: 'MMM dd, HH:mm:ss',
           },
         },
         title: {
@@ -59,7 +61,11 @@ const TrafficChart = ({ data, metric, label }) => {
     },
   };
 
-  return <Line data={chartData} options={options} />;
+  return (
+    <div style={{ width: "100%", height: "400px" }}>
+      <Line data={chartData} options={options} />
+    </div>
+  );
 };
 
 export default TrafficChart;

@@ -1,17 +1,28 @@
-import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
+import React, { useEffect, useState } from "react";
 import TrafficChart from "./components/TrafficChart";
+import GeneralChart from "./components/generalChart";
 import "./App.css";
+import BarChart from "./components/BarChart";
+import PieChart from "./components/PieChart";
 
 const App = () => {
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const increaseCurrentPage = () => {
-    setCurrentPage(currentPage + 1);
-    console.log(currentPage);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const pageSize = 20; // Number of data points per page
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
-  setTimeout(increaseCurrentPage, 1000);
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => {
+      const totalPages = Math.ceil(chartData.length / pageSize);
+      return Math.min(prevPage + 1, totalPages);
+    });
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -29,7 +40,6 @@ const App = () => {
           header: true,
           dynamicTyping: true,
         });
-        console.log("Parsed CSV Data:", parsedData);
 
         const formattedData = parsedData.data.map((row) => ({
           time: new Date(row.Timestamp),
@@ -56,6 +66,21 @@ const App = () => {
 
     fetchData();
   }, []);
+  useEffect(() => {
+    let intervalId;
+
+    if (isPlaying) {
+      intervalId = setInterval(handleNextPage, 2000);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [isPlaying]);
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   const metrics = [
     "Average Packet Size",
@@ -69,18 +94,39 @@ const App = () => {
     "Packet Length Std",
     "Max Packet Length",
   ];
-  const paginatedData = chartData.slice(
-    (currentPage - 1) * 60,
-    currentPage * 60
-  );
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = chartData.slice(startIndex, endIndex);
+  // while (isPlaying) {
+  //   setTimeout(handleNextPage, 2000);
+  // }
+
   return (
     <div className="App">
       <h1>Network Traffic Visualization</h1>
-      <button onClick={increaseCurrentPage}>Click here to change page</button>
       {isLoading ? (
         <p>Loading data...</p>
       ) : chartData.length > 0 ? (
         <div className="chart-container">
+          <div className="pagination">
+            <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+              Previous
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === Math.ceil(chartData.length / pageSize)}
+            >
+              Next
+            </button>
+            <button
+              onClick={handlePlayPause}
+              disabled={currentPage === Math.ceil(chartData.length / pageSize)}
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </button>
+          </div>
+          <GeneralChart data={paginatedData} />
           {metrics.map((metric) => (
             <div key={metric} className="chart-item">
               <TrafficChart
@@ -90,6 +136,13 @@ const App = () => {
               />
             </div>
           ))}
+          <h1>Other charts: </h1>
+          <div className="chart-container">
+            <PieChart data={chartData} />
+            <div className="chart-item">
+              <BarChart data={chartData} />
+            </div>
+          </div>
         </div>
       ) : (
         <p>No data available</p>

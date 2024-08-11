@@ -19,10 +19,22 @@
 }
 
 .chart-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(1fr, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.chart-container-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1000px;
+  height: 800px;
+  margin: 0 auto;
 }
 
 .chart-item {
@@ -33,6 +45,7 @@
   /* background: #fff; */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .add_button {
   outline: none;
   border: none;
@@ -40,4 +53,21 @@
   background-color: rgba(0, 255, 0, 0.3);
   color: white;
   border-radius: 0.2rem;
+}
+
+.button-container {
+  text-align: center; 
+  margin-top: 20px;
+}
+
+.pagination {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin: auto;
+}
+
+.pagination button {
+  width: 100px;
+  text-align: center;
 }
